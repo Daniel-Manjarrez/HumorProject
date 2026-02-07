@@ -1,4 +1,5 @@
-import { supabase } from '../utils/supabase/client';
+import { createClient } from '@/utils/supabase/server';
+import LoginButton from '@/components/LoginButton';
 
 // Define the shape of our data
 type Caption = {
@@ -9,6 +10,31 @@ type Caption = {
 };
 
 export default async function Home() {
+  const supabase = await createClient();
+
+  // Check auth
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+              Humor Project
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Join our community to view and share witty captions.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <LoginButton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch data
   const { data: captions, error } = await supabase
     .from('captions')
@@ -30,13 +56,16 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Humor Project
-          </h1>
-          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
-            A collection of witty captions from our community.
-          </p>
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight">
+              Humor Project
+            </h1>
+            <p className="mt-2 text-xl text-gray-500">
+              Welcome back, {user.email}
+            </p>
+          </div>
+          {/* Optional: Add a Sign Out button here later */}
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
