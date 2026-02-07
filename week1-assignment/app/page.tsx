@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import LoginButton from '@/components/LoginButton';
+import SignOutButton from '@/components/SignOutButton';
 
 // Define the shape of our data
 type Caption = {
@@ -65,7 +66,7 @@ export default async function Home() {
               Welcome back, {user.email}
             </p>
           </div>
-          {/* Optional: Add a Sign Out button here later */}
+          <SignOutButton />
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -80,8 +81,11 @@ export default async function Home() {
                 </p>
               </div>
               <div className="bg-white px-6 py-4 border-t border-gray-100 flex justify-between items-center">
-                <span className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
-                  {new Date(caption.created_datetime_utc).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                <span
+                  className="text-xs font-semibold tracking-wide text-gray-400 uppercase"
+                  suppressHydrationWarning
+                >
+                  {new Date(caption.created_datetime_utc).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
                 <div className="flex items-center text-pink-500 bg-pink-50 px-3 py-1 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
