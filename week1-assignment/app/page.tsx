@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import LoginButton from '@/components/LoginButton';
 import SignOutButton from '@/components/SignOutButton';
 import CaptionRater from '@/components/CaptionRater';
+import Link from 'next/link';
 
 // Define the shape of our data
 type Caption = {
@@ -71,7 +72,15 @@ export default async function Home() {
               ID: {user.id}
             </p>
           </div>
-          <SignOutButton />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/upload"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            >
+              Upload Image
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         <div className="mt-8">
