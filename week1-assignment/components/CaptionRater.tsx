@@ -8,9 +8,8 @@ type Caption = {
   content: string;
   created_datetime_utc: string;
   like_count: number;
-  images: {
-    url: string;
-  } | null;
+  // Allow images to be an object or an array of objects
+  images: { url: string } | { url: string }[] | null;
 }
 
 export default function CaptionRater({ captions }: { captions: Caption[] }) {
@@ -67,7 +66,7 @@ export default function CaptionRater({ captions }: { captions: Caption[] }) {
   // We'll handle both just in case.
   const imageUrl = Array.isArray(currentCaption.images)
     ? currentCaption.images[0]?.url
-    : currentCaption.images?.url;
+    : (currentCaption.images as any)?.url;
 
   return (
     <div className="max-w-2xl mx-auto">

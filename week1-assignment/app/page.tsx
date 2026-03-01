@@ -10,9 +10,8 @@ type Caption = {
   content: string;
   created_datetime_utc: string;
   like_count: number;
-  images: {
-    url: string;
-  } | null;
+  // Supabase returns an array for relations unless .single() is used
+  images: { url: string } | { url: string }[] | null;
 };
 
 export default async function Home() {
@@ -68,9 +67,6 @@ export default async function Home() {
     );
   }
 
-  // Transform data to flatten the image URL if needed, or just pass as is
-  // The type definition above handles the nested structure.
-
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -98,7 +94,8 @@ export default async function Home() {
         </div>
 
         <div className="mt-8">
-          <CaptionRater captions={captions || []} />
+          {/* We cast captions to any to avoid strict type checking on the Supabase return type vs our manual type */}
+          <CaptionRater captions={captions as any || []} />
         </div>
 
       </div>
