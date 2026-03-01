@@ -10,6 +10,9 @@ type Caption = {
   content: string;
   created_datetime_utc: string;
   like_count: number;
+  images: {
+    url: string;
+  } | null;
 };
 
 export default async function Home() {
@@ -38,10 +41,18 @@ export default async function Home() {
     );
   }
 
-  // Fetch data
+  // Fetch data with image URL
   const { data: captions, error } = await supabase
     .from('captions')
-    .select('id, content, created_datetime_utc, like_count')
+    .select(`
+      id,
+      content,
+      created_datetime_utc,
+      like_count,
+      images (
+        url
+      )
+    `)
     .order('created_datetime_utc', { ascending: false })
     .limit(50);
 
@@ -56,6 +67,9 @@ export default async function Home() {
       </div>
     );
   }
+
+  // Transform data to flatten the image URL if needed, or just pass as is
+  // The type definition above handles the nested structure.
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

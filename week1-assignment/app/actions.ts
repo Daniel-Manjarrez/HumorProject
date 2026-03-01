@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+// import { revalidatePath } from 'next/cache' // Removed to prevent UI reset
 
 export async function submitVote(captionId: string, voteValue: number) {
   const supabase = await createClient()
@@ -57,5 +57,5 @@ export async function submitVote(captionId: string, voteValue: number) {
     }
   }
 
-  revalidatePath('/')
+  // revalidatePath('/') // Commented out to prevent resetting client state (currentIndex)
 }

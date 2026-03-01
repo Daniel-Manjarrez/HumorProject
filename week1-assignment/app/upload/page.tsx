@@ -10,6 +10,7 @@ export default function UploadPage() {
   const [status, setStatus] = useState('')
   const [captions, setCaptions] = useState<any[]>([])
   const [error, setError] = useState('')
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('')
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -17,6 +18,7 @@ export default function UploadPage() {
       setError('')
       setCaptions([])
       setStatus('')
+      setUploadedImageUrl('')
     }
   }
 
@@ -26,18 +28,34 @@ export default function UploadPage() {
     setLoading(true)
     setError('')
     setCaptions([])
+    setUploadedImageUrl('')
 
     try {
+      // Handle HEIC/HEIF files which might have empty file.type in some browsers
+      let contentType = file.type
+
+      if (!contentType) {
+        const name = file.name.toLowerCase()
+        if (name.endsWith('.heic')) contentType = 'image/heic'
+        else if (name.endsWith('.heif')) contentType = 'image/heif'
+      }
+
+
+      if (!contentType) {
+        throw new Error('Could not determine file type. Please try a different image.')
+      }
+
       // Step 1: Get Presigned URL
       setStatus('Getting upload URL...')
-      const { presignedUrl, cdnUrl } = await getPresignedUrl(file.type)
+      const { presignedUrl, cdnUrl } = await getPresignedUrl(contentType)
+      setUploadedImageUrl(cdnUrl)
 
       // Step 2: Upload to S3
       setStatus('Uploading image...')
       const uploadResponse = await fetch(presignedUrl, {
         method: 'PUT',
         headers: {
-          'Content-Type': file.type,
+          'Content-Type': contentType,
         },
         body: file,
       })
@@ -77,7 +95,7 @@ export default function UploadPage() {
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-500 transition-colors">
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
@@ -123,6 +141,18 @@ export default function UploadPage() {
         {captions.length > 0 && (
           <div className="mt-12 space-y-8">
             <h2 className="text-2xl font-bold text-gray-900">Generated Captions</h2>
+
+            {/* Display Uploaded Image */}
+            {uploadedImageUrl && (
+              <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex justify-center">
+                <img
+                  src={uploadedImageUrl}
+                  alt="Uploaded context"
+                  className="max-h-96 object-contain rounded-lg"
+                />
+              </div>
+            )}
+
             <div className="grid gap-6">
               {captions.map((caption: any, index: number) => (
                 <div key={index} className="bg-white p-6 rounded-xl shadow-md border border-gray-100">

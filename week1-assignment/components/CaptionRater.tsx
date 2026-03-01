@@ -8,6 +8,9 @@ type Caption = {
   content: string;
   created_datetime_utc: string;
   like_count: number;
+  images: {
+    url: string;
+  } | null;
 }
 
 export default function CaptionRater({ captions }: { captions: Caption[] }) {
@@ -58,27 +61,56 @@ export default function CaptionRater({ captions }: { captions: Caption[] }) {
     )
   }
 
+  // Handle image URL - it might be nested or direct depending on how Supabase returns it
+  // The type says it's an object { url: string } or null.
+  // Sometimes Supabase returns an array if it's a one-to-many relation, but usually object for one-to-one.
+  // We'll handle both just in case.
+  const imageUrl = Array.isArray(currentCaption.images)
+    ? currentCaption.images[0]?.url
+    : currentCaption.images?.url;
+
   return (
     <div className="max-w-2xl mx-auto">
       <div
         className={`
-          bg-white rounded-2xl shadow-xl p-12 min-h-[300px] flex flex-col justify-center items-center text-center
+          bg-white rounded-2xl shadow-xl overflow-hidden min-h-[400px] flex flex-col
           transition-all duration-300 transform
           ${isVisible ? 'opacity-100 translate-x-0 scale-100' : `opacity-0 ${direction > 0 ? 'translate-x-20 rotate-6' : '-translate-x-20 -rotate-6'} scale-95`}
         `}
       >
-        <p className="text-3xl font-serif text-gray-800 mb-8 leading-relaxed">
-          "{currentCaption.content}"
-        </p>
-
-        <div className="text-sm text-gray-400 font-medium uppercase tracking-wider">
-           <span suppressHydrationWarning>
-             {new Date(currentCaption.created_datetime_utc).toLocaleDateString('en-US', { dateStyle: 'medium' })}
-           </span>
+        {/* Image Section */}
+        <div className="relative w-full h-64 bg-gray-100 flex items-center justify-center overflow-hidden">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="Caption context"
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="text-gray-400 flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>No image available</span>
+            </div>
+          )}
         </div>
 
-        <div className="text-xs text-gray-300 mt-2 font-mono">
-          ID: {currentCaption.id}
+        {/* Content Section */}
+        <div className="p-8 flex-grow flex flex-col justify-center items-center text-center">
+          <p className="text-2xl font-serif text-gray-800 mb-6 leading-relaxed">
+            "{currentCaption.content}"
+          </p>
+
+          <div className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2">
+             <span suppressHydrationWarning>
+               {new Date(currentCaption.created_datetime_utc).toLocaleDateString('en-US', { dateStyle: 'medium' })}
+             </span>
+          </div>
+
+          <div className="text-xs text-gray-300 font-mono">
+            ID: {currentCaption.id}
+          </div>
         </div>
       </div>
 
