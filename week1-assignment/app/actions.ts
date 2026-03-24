@@ -31,7 +31,8 @@ export async function submitVote(captionId: string, voteValue: number) {
       .from('caption_votes')
       .update({
         vote_value: voteValue,
-        modified_datetime_utc: new Date().toISOString()
+        modified_datetime_utc: new Date().toISOString(),
+        modified_by_user_id: user.id
       })
       .eq('id', existingVote.id)
 
@@ -48,7 +49,9 @@ export async function submitVote(captionId: string, voteValue: number) {
         caption_id: captionId,
         vote_value: voteValue,
         created_datetime_utc: new Date().toISOString(),
-        modified_datetime_utc: new Date().toISOString()
+        modified_datetime_utc: new Date().toISOString(),
+        created_by_user_id: user.id,
+        modified_by_user_id: user.id
       })
 
     if (error) {
